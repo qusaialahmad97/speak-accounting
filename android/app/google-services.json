@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "657468814423",
+    "project_id": "speak-accounting-18fe6",
+    "storage_bucket": "speak-accounting-18fe6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:657468814423:android:5708e96d1fc2643390df12",
+        "android_client_info": {
+          "package_name": "com.speakaccounting.speak_accounting"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "657468814423-fsjn4nfiie29m213t9dp15gvsh9j2lar.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.speakaccounting.speak_accounting",
+            "certificate_hash": "a9acff72b745a2137978e5f393b0b355e7808d7a"
+          }
+        },
+        {
+          "client_id": "657468814423-vq9bjgol5ds6tpevkapt1aqe0b2auujf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNKAlImiISLMQ4X3iv4Lc6xUXEAyZVFqg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "657468814423-vq9bjgol5ds6tpevkapt1aqe0b2auujf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
