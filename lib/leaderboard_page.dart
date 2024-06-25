@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LeaderboardPage extends StatefulWidget {
-  const LeaderboardPage({Key? key}) : super(key: key);
+  const LeaderboardPage({super.key});
 
   @override
   _LeaderboardPageState createState() => _LeaderboardPageState();
@@ -17,7 +17,7 @@ class _LeaderboardPageState extends State<LeaderboardPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Leaderboard',style: TextStyle(color: Colors.white),),
-        backgroundColor: Color(0xFF7F3B8B),
+        backgroundColor: const Color(0xFF7F3B8B),
         centerTitle: true,
       ),
       body: StreamBuilder<QuerySnapshot>(

@@ -9,13 +9,12 @@ import 'package:speak_accounting/quiz_question.dart';
 import 'package:speak_accounting/multiple_choice_question_widget.dart';
 import 'package:speak_accounting/true_false_question_widget.dart';
 import 'package:speak_accounting/fill_in_the_blank_question_widget.dart';
-import 'package:speak_accounting/lesson_page.dart';
-import 'package:speak_accounting/video_page.dart';
-import 'package:speak_accounting/quiz_result_page.dart'; // Import QuizResultPage
-import 'package:speak_accounting/leaderboard_page.dart'; // Import LeaderboardPage
+import 'package:speak_accounting/quiz_result_page.dart';
+import 'package:speak_accounting/leaderboard_page.dart';
+import 'package:audioplayers/audioplayers.dart'; // Import audioplayers
 
 class QuizPage extends StatefulWidget {
-  final List<Lesson> lessons; // Receive lessons from LessonPage
+  final List<Lesson> lessons;
 
   const QuizPage({super.key, required this.lessons});
 
@@ -32,13 +31,22 @@ class _QuizPageState extends State<QuizPage> {
   final CollectionReference usersCollection =
   FirebaseFirestore.instance.collection('users');
 
-  // List of quiz categories (now using Lesson data)
   List<QuizCard> _quizCategories = [];
+
+  // AudioPlayer instances
+  final AudioPlayer correctSoundPlayer = AudioPlayer();
+  final AudioPlayer incorrectSoundPlayer = AudioPlayer();
 
   @override
   void initState() {
     super.initState();
-    _createQuizCategories(); // Create QuizCards from lessons
+    _createQuizCategories();
+    _loadSoundEffects();
+  }
+
+  Future<void> _loadSoundEffects() async {
+    await correctSoundPlayer.setSourceAsset('assets/sounds/correct.mp3');
+    await incorrectSoundPlayer.setSourceAsset('assets/sounds/incorrect.mp3');
   }
 
   void _createQuizCategories() {
@@ -61,8 +69,7 @@ class _QuizPageState extends State<QuizPage> {
       appBar: AppBar(
         title: const Text('Accounting Quizzes',style: TextStyle(color: Colors.white),),
         centerTitle: true,
-        backgroundColor: Colors.purple[900], // Deeper purple
-
+        backgroundColor: Colors.purple[900],
         actions: [
           IconButton(
             icon: const Icon(Icons.leaderboard,color: Colors.white,),
@@ -70,7 +77,7 @@ class _QuizPageState extends State<QuizPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => LeaderboardPage(), // Navigate to LeaderboardPage
+                  builder: (context) => const LeaderboardPage(),
                 ),
               );
             },
@@ -91,7 +98,7 @@ class _QuizPageState extends State<QuizPage> {
                   builder: (context) => QuizPageInternal(
                     quizQuestions: quizQuestions,
                     onQuizCompleted: (score, streak) {
-                      _updateXP(); // Update XP when quiz is completed
+                      _updateXP();
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -103,6 +110,9 @@ class _QuizPageState extends State<QuizPage> {
                         ),
                       );
                     },
+                    // Pass the AudioPlayer instances to QuizPageInternal
+                    correctSoundPlayer: correctSoundPlayer,
+                    incorrectSoundPlayer: incorrectSoundPlayer,
                   ),
                 ),
               );
@@ -117,9 +127,17 @@ class _QuizPageState extends State<QuizPage> {
     if (user != null) {
       final String uid = user!.uid;
       DocumentSnapshot userDoc = await usersCollection.doc(uid).get();
-      int currentXP = userDoc.get('xp') ?? 0; // Get existing XP or default to 0
+      int currentXP = userDoc.get('xp') ?? 0;
       await usersCollection.doc(uid).update({'xp': currentXP + 15});
     }
+  }
+
+  @override
+  void dispose() {
+    // Dispose of AudioPlayers when the widget is disposed
+    correctSoundPlayer.dispose();
+    incorrectSoundPlayer.dispose();
+    super.dispose();
   }
 }
 
@@ -128,10 +146,16 @@ class QuizPageInternal extends StatefulWidget {
   final List<QuizQuestion> quizQuestions;
   final Function(int, int) onQuizCompleted;
 
+  // Receive AudioPlayer instances from QuizPage
+  final AudioPlayer correctSoundPlayer;
+  final AudioPlayer incorrectSoundPlayer;
+
   const QuizPageInternal({
     super.key,
     required this.quizQuestions,
     required this.onQuizCompleted,
+    required this.correctSoundPlayer, // Receive correctSoundPlayer
+    required this.incorrectSoundPlayer, // Receive incorrectSoundPlayer
   });
 
   @override
@@ -152,12 +176,12 @@ class _QuizPageInternalState extends State<QuizPageInternal> {
   int _streak = 0;
 
   final Map<int, String> _answeredQuestions = {};
-  String? _selectedAnswer; // Store the currently selected answer
+  String? _selectedAnswer;
 
   bool _showFeedback = false;
   String _feedbackMessage = "";
   Color _feedbackColor = Colors.green;
-  String _buttonText = "Check"; // Initial button text is "Check"
+  String _buttonText = "Check";
 
   void _startTimer() {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -178,13 +202,8 @@ class _QuizPageInternalState extends State<QuizPageInternal> {
 
   void _checkAnswer() {
     setState(() {
-      _showFeedback = true; // Show feedback container when "Check" is pressed
+      _showFeedback = true;
       final String answer = _selectedAnswer ?? "";
-
-      // Debug print to check the selected answer and correct answer
-      print('Selected Answer: $answer');
-      print(
-          'Correct Answer: ${widget.quizQuestions[_currentQuestionIndex].correctAnswer}');
 
       if (answer ==
           widget.quizQuestions[_currentQuestionIndex].correctAnswer) {
@@ -192,7 +211,10 @@ class _QuizPageInternalState extends State<QuizPageInternal> {
         _streak++;
         _feedbackMessage = "Correct!";
         _feedbackColor = Colors.green;
-        _buttonText = "Continue"; // Change button text to "Continue"
+        _buttonText = "Continue";
+
+        // Play correct sound effect
+        widget.correctSoundPlayer.play(AssetSource('sounds/correct.mp3'));
       } else {
         _streak = 0;
         _updateAnalytics(
@@ -201,20 +223,23 @@ class _QuizPageInternalState extends State<QuizPageInternal> {
         "Incorrect. The correct answer is: ${widget.quizQuestions[_currentQuestionIndex].correctAnswer}";
         _feedbackColor = Colors.red;
         _buttonText = "Got it";
+
+        // Play incorrect sound effect
+        widget.incorrectSoundPlayer.play(AssetSource('sounds/incorrect.mp3'));
       }
     });
   }
 
   void _nextQuestion() {
     setState(() {
-      _showFeedback = false; // Hide feedback container
+      _showFeedback = false;
       _selectedAnswer = null;
       _currentQuestionIndex++;
 
       if (_currentQuestionIndex >= widget.quizQuestions.length) {
         _endQuiz();
       } else {
-        _buttonText = "Check"; // Reset button text to "Check"
+        _buttonText = "Check";
       }
     });
   }
@@ -261,8 +286,8 @@ class _QuizPageInternalState extends State<QuizPageInternal> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            'Question ${_currentQuestionIndex + 1} / ${widget.quizQuestions.length}',style: TextStyle(color: Colors.white),),
-        backgroundColor: Color(0xFF4B188C),
+          'Question ${_currentQuestionIndex + 1} / ${widget.quizQuestions.length}',style: const TextStyle(color: Colors.white),),
+        backgroundColor: const Color(0xFF4B188C),
         centerTitle: true,
         elevation: 0,
       ),
@@ -289,8 +314,6 @@ class _QuizPageInternalState extends State<QuizPageInternal> {
                           onAnswerSelected: (answer) {
                             setState(() {
                               _selectedAnswer = answer;
-                              // Debug print to verify answer selection
-                              print('Answer selected: $answer');
                             });
                           },
                         ),
@@ -300,8 +323,6 @@ class _QuizPageInternalState extends State<QuizPageInternal> {
                           onAnswerSelected: (answer) {
                             setState(() {
                               _selectedAnswer = answer;
-                              // Debug print to verify answer selection
-                              print('Answer selected: $answer');
                             });
                           },
                         ),
@@ -311,8 +332,6 @@ class _QuizPageInternalState extends State<QuizPageInternal> {
                           onAnswerSelected: (answer) {
                             setState(() {
                               _selectedAnswer = answer;
-                              // Debug print to verify answer selection
-                              print('Answer selected: $answer');
                             });
                           },
                         ),
@@ -371,3 +390,4 @@ class _QuizPageInternalState extends State<QuizPageInternal> {
     );
   }
 }
+

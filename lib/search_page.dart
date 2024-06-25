@@ -64,7 +64,7 @@ class _SearchPageState extends State<SearchPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => LessonPage(),
+                          builder: (context) => const LessonPage(),
                         ),
                       );
                     },

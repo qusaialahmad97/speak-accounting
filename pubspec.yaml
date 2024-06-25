@@ -45,6 +45,7 @@ dependencies:
   video_player: ^2.8.7
   provider: ^6.1.2
   google_sign_in: ^5.2.1
+  audioplayers: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -74,6 +75,9 @@ flutter:
      - assets/images/accounting_principles.png
      - assets/images/financial_statements.png
      - assets/images/accounting_intro.png
+
+     - assets/sounds/correct.mp3
+     - assets/sounds/incorrect.mp3
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

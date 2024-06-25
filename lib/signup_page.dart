@@ -107,7 +107,7 @@ class _SignupPageState extends State<SignupPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sign Up',style: TextStyle(color: Colors.white),),
-        backgroundColor: Color(0xFF4B188C),
+        backgroundColor: const Color(0xFF4B188C),
         centerTitle: true,
       ),
       body: Padding(

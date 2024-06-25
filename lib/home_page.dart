@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'lesson_page.dart';
-import 'quiz_page.dart';
 import 'profile_page.dart';
 import 'settings_page.dart';
-import 'package:speak_accounting/quiz_question.dart';
 import 'leaderboard_page.dart';
 
 
@@ -133,7 +131,7 @@ class HomeScreen extends StatelessWidget {
               Navigator.pushNamed(context, '/lesson');
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF7F3B8B),
+              backgroundColor: const Color(0xFF7F3B8B),
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
               textStyle: const TextStyle(
                 fontSize: 20,
@@ -154,7 +152,7 @@ class HomeScreen extends StatelessWidget {
               Navigator.pushNamed(context, '/quiz');
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF7F3B8B),
+              backgroundColor: const Color(0xFF7F3B8B),
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 40),
               textStyle: const TextStyle(
                 fontSize: 20,
